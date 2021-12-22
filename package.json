@@ -1,0 +1,19 @@
+{
+  "name": "pose",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^2.7.2"
+  },
+  "dependencies": {
+    "@tensorflow-models/pose-detection": "^0.0.6",
+    "@tensorflow/tfjs": "^3.12.0",
+    "@tensorflow/tfjs-backend-webgl": "^3.12.0",
+    "@tensorflow/tfjs-converter": "^3.12.0",
+    "@tensorflow/tfjs-core": "^3.12.0"
+  }
+}

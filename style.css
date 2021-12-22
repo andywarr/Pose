@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+}
+
+#app {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  position:relative;
+  width: 100%;
+}
+
+.left {
+  background-color: red;
+}
+
+.right {
+  background-color: blue;
+}
+
+#video {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
