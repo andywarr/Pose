@@ -1,6 +1,7 @@
 import * as poseDetection from "@tensorflow-models/pose-detection";
 import * as tf from "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
+import { Game } from "./Game.js";
 
 // --- Pose Detection Setup ---
 const videoWidth = window.innerWidth / 5;
@@ -400,7 +401,20 @@ async function detectPosesRealTime(detector, video) {
 }
 
 // --- Start ---
-initDetection(); // Initialize pose detection, which starts the game loop
+
+// Ensure the DOM is fully loaded before starting the game
+document.addEventListener("DOMContentLoaded", () => {
+  const game = new Game("gameCanvas", "video", "score", "gameOver");
+  game.initialize().catch((error) => {
+    console.error("Game initialization failed:", error);
+    // Display a user-friendly error message if initialization fails
+    const app = document.getElementById("app");
+    if (app) {
+      app.innerHTML =
+        '<p style="color: red; text-align: center; margin-top: 50px;">Failed to initialize the game. Please ensure you have a webcam enabled and permissions are granted.</p>';
+    }
+  });
+});
 
 // Handle window resize
 window.addEventListener("resize", () => {
