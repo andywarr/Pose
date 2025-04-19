@@ -404,7 +404,17 @@ async function detectPosesRealTime(detector, video) {
 
 // Ensure the DOM is fully loaded before starting the game
 document.addEventListener("DOMContentLoaded", () => {
-  const game = new Game("gameCanvas", "video", "score", "gameOver");
+  const game = new Game(
+    "gameCanvas",
+    "video",
+    "score",
+    "gameOver",
+    "instructionModal", // Add ID for instruction modal
+    "confirmInstructions", // Add ID for confirm button
+    "standByMessage", // Add ID for stand by message
+    "countdown", // Add ID for countdown element
+    "countdownText" // Add ID for countdown text
+  );
   game.initialize().catch((error) => {
     console.error("Game initialization failed:", error);
     // Display a user-friendly error message if initialization fails

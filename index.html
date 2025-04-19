@@ -14,12 +14,31 @@
         <div id="score">Score: 0</div>
         <div id="gameOver" class="hidden">Game Over!</div>
       </div>
+      <!-- Instruction Modal -->
+      <div id="instructionModal" class="modal hidden">
+        <div class="modal-content">
+          <h2>How to Play</h2>
+          <p>
+            Raise your LEFT hand to turn the snowboard LEFT (anti-clockwise).
+          </p>
+          <p>Raise your RIGHT hand to turn the snowboard RIGHT (clockwise).</p>
+          <button id="confirmInstructions">Got it!</button>
+        </div>
+      </div>
+      <!-- Stand By Message -->
+      <div id="standByMessage" class="modal hidden">
+        <div class="modal-content">
+          <p>Please stand in front of the camera.</p>
+        </div>
+      </div>
+      <!-- Countdown Timer -->
+      <div id="countdown" class="modal hidden">
+        <div class="modal-content">
+          <p id="countdownText">3</p>
+        </div>
+      </div>
       <video id="video" style="-webkit-transform: scaleX(-1)"></video>
     </div>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script> -->
     <script type="module" src="/main.js"></script>
   </body>
 </html>

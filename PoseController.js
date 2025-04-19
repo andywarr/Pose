@@ -10,6 +10,7 @@ export class PoseController {
     this.shoulderThreshold = 0.3;
     this.wristThreshold = 0.2;
     this.turnThresholdYOffset = 10; // Pixels (wrist Y < shoulder Y + offset)
+    this.lastPose = null; // Store the last detected pose
   }
 
   async setupCamera() {
@@ -52,53 +53,69 @@ export class PoseController {
     }
   }
 
-  async detectTurnDirection() {
-    if (!this.detector || this.video.paused || this.video.ended) {
-      return "none";
-    }
+  isReady() {
+    return !!this.detector;
+  }
 
-    let turnDirection = "none";
+  async estimateCurrentPose() {
+    if (!this.detector || this.video.paused || this.video.ended) {
+      this.lastPose = null;
+      return null;
+    }
     try {
       const poses = await this.detector.estimatePoses(this.video, {
         flipHorizontal: false,
       });
-
-      if (poses && poses[0]) {
-        const keypoints = poses[0].keypoints;
-        const leftShoulder = keypoints.find((k) => k.name === "left_shoulder");
-        const rightShoulder = keypoints.find(
-          (k) => k.name === "right_shoulder"
-        );
-        const leftWrist = keypoints.find((k) => k.name === "left_wrist");
-        const rightWrist = keypoints.find((k) => k.name === "right_wrist");
-
-        // Check Left Arm
-        if (
-          leftShoulder &&
-          leftShoulder.score > this.shoulderThreshold &&
-          leftWrist &&
-          leftWrist.score > this.wristThreshold
-        ) {
-          if (leftWrist.y < leftShoulder.y + this.turnThresholdYOffset) {
-            turnDirection = "left";
-          }
-        }
-
-        // Check Right Arm (only if left wasn't triggered)
-        if (
-          turnDirection === "none" &&
-          rightShoulder &&
-          rightShoulder.score > this.shoulderThreshold &&
-          rightWrist &&
-          rightWrist.score > this.wristThreshold
-        ) {
-          if (rightWrist.y < rightShoulder.y + this.turnThresholdYOffset) {
-            turnDirection = "right";
-          }
-        }
-      }
+      this.lastPose = poses && poses.length > 0 ? poses[0] : null;
+      return this.lastPose;
     } catch (error) {
       console.error("Error during pose estimation:", error);
+      this.lastPose = null;
+      return null;
+    }
+  }
+
+  async getCurrentPose() {
+    // Use the last estimated pose if available, otherwise estimate again
+    return this.lastPose || (await this.estimateCurrentPose());
+  }
+
+  async detectTurnDirection() {
+    // Estimate pose before detecting turn direction
+    const currentPose = await this.estimateCurrentPose();
+    let turnDirection = "none";
+
+    if (currentPose) {
+      const keypoints = currentPose.keypoints;
+      const leftShoulder = keypoints.find((k) => k.name === "left_shoulder");
+      const rightShoulder = keypoints.find((k) => k.name === "right_shoulder");
+      const leftWrist = keypoints.find((k) => k.name === "left_wrist");
+      const rightWrist = keypoints.find((k) => k.name === "right_wrist");
+
+      // Check Left Arm
+      if (
+        leftShoulder &&
+        leftShoulder.score > this.shoulderThreshold &&
+        leftWrist &&
+        leftWrist.score > this.wristThreshold
+      ) {
+        if (leftWrist.y < leftShoulder.y + this.turnThresholdYOffset) {
+          turnDirection = "left";
+        }
+      }
+
+      // Check Right Arm (only if left wasn't triggered)
+      if (
+        turnDirection === "none" &&
+        rightShoulder &&
+        rightShoulder.score > this.shoulderThreshold &&
+        rightWrist &&
+        rightWrist.score > this.wristThreshold
+      ) {
+        if (rightWrist.y < rightShoulder.y + this.turnThresholdYOffset) {
+          turnDirection = "right";
+        }
+      }
     }
     // console.log("Detected Turn:", turnDirection); // Optional debug log
     return turnDirection;

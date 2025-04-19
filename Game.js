@@ -4,12 +4,33 @@ import { UI } from "./UI.js";
 import { PoseController } from "./PoseController.js";
 
 export class Game {
-  constructor(canvasId, videoId, scoreId, gameOverId) {
+  constructor(
+    canvasId,
+    videoId,
+    scoreId,
+    gameOverId,
+    instructionModalId,
+    confirmInstructionsButtonId,
+    standByMessageId,
+    countdownElementId,
+    countdownTextId
+  ) {
     this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext("2d");
     this.videoElementId = videoId; // Store ID for PoseController
 
-    this.ui = new UI(scoreId, gameOverId);
+    this.ui = new UI(
+      scoreId,
+      gameOverId,
+      instructionModalId,
+      standByMessageId,
+      countdownElementId,
+      countdownTextId
+    );
+    this.confirmInstructionsButton = document.getElementById(
+      confirmInstructionsButtonId
+    );
+
     this.player = null; // Initialized after resize
     this.obstacleManager = null; // Initialized after resize
     this.poseController = null; // Initialized async
@@ -18,9 +39,14 @@ export class Game {
     this.distanceTraveled = 0;
     this.gameOver = false;
     this.gameLoopId = null;
+    this.gameStarted = false; // Flag to prevent game loop before countdown
+    this.poseCheckInterval = null;
 
     this.handleResize = this.handleResize.bind(this);
     this.gameLoop = this.gameLoop.bind(this);
+    this.startPreGameSequence = this.startPreGameSequence.bind(this);
+    this.checkPoseReadiness = this.checkPoseReadiness.bind(this);
+    this.startCountdown = this.startCountdown.bind(this);
   }
 
   async initialize() {
@@ -28,7 +54,17 @@ export class Game {
     this.handleResize();
     window.addEventListener("resize", this.handleResize);
 
-    // Initialize Pose Controller (which includes camera setup)
+    // Show instructions first
+    this.ui.showInstructions();
+
+    // Add listener for instruction confirmation
+    this.confirmInstructionsButton.addEventListener(
+      "click",
+      this.startPreGameSequence,
+      { once: true } // Remove listener after first click
+    );
+
+    // Initialize Pose Controller (but don't start game loop yet)
     const videoWidth = window.innerWidth / 5;
     const videoHeight = window.innerHeight / 5;
     this.poseController = new PoseController(
@@ -38,12 +74,116 @@ export class Game {
     );
     try {
       await this.poseController.initialize();
-      // Start game loop only after pose detection is ready
-      this.startGameLoop();
+      // Pose controller is ready, but wait for user interaction
+      console.log("Pose controller initialized.");
     } catch (error) {
-      console.error("Failed to initialize game due to pose controller error.");
-      // Optionally display an error message to the user via UI
+      console.error("Failed to initialize pose controller:", error);
+      // Optionally display a more specific error message to the user via UI
+      this.ui.hideInstructions(); // Hide instructions if setup fails
+      // Display a general error message (consider adding a dedicated UI element)
+      alert(
+        "Failed to initialize camera or pose detection. Please check permissions and refresh."
+      );
     }
+  }
+
+  startPreGameSequence() {
+    this.ui.hideInstructions();
+    this.ui.showStandByMessage();
+    // Start checking for pose readiness
+    this.poseCheckInterval = setInterval(this.checkPoseReadiness, 500); // Check every 500ms
+  }
+
+  async checkPoseReadiness() {
+    if (!this.poseController || !this.poseController.isReady()) {
+      console.log("Pose controller not ready yet...");
+      return; // Wait if controller isn't fully initialized
+    }
+
+    console.log("Checking pose readiness..."); // Add log: function called
+    const poseData = await this.poseController.getCurrentPose();
+
+    if (poseData && poseData.keypoints) {
+      console.log("Pose data received:", poseData); // Add log: pose data details
+      const leftShoulder = poseData.keypoints.find(
+        (k) => k.name === "left_shoulder"
+      );
+      const rightShoulder = poseData.keypoints.find(
+        (k) => k.name === "right_shoulder"
+      );
+      const leftWrist = poseData.keypoints.find((k) => k.name === "left_wrist");
+      const rightWrist = poseData.keypoints.find(
+        (k) => k.name === "right_wrist"
+      );
+      const shoulderConfidenceThreshold = 0.3; // Keep shoulder threshold
+      const wristConfidenceThreshold = 0.15; // Lower wrist threshold
+
+      // Log individual keypoint statuses
+      console.log(
+        `Left Shoulder: ${
+          leftShoulder ? `Score ${leftShoulder.score.toFixed(2)}` : "Not found"
+        } (Threshold: ${shoulderConfidenceThreshold})`
+      );
+      console.log(
+        `Right Shoulder: ${
+          rightShoulder
+            ? `Score ${rightShoulder.score.toFixed(2)}`
+            : "Not found"
+        } (Threshold: ${shoulderConfidenceThreshold})`
+      );
+      console.log(
+        `Left Wrist: ${
+          leftWrist ? `Score ${leftWrist.score.toFixed(2)}` : "Not found"
+        } (Threshold: ${wristConfidenceThreshold})`
+      );
+      console.log(
+        `Right Wrist: ${
+          rightWrist ? `Score ${rightWrist.score.toFixed(2)}` : "Not found"
+        } (Threshold: ${wristConfidenceThreshold})`
+      );
+
+      const lsReady = leftShoulder?.score > shoulderConfidenceThreshold;
+      const rsReady = rightShoulder?.score > shoulderConfidenceThreshold;
+      const lwReady = leftWrist?.score > wristConfidenceThreshold; // Use lower threshold
+      const rwReady = rightWrist?.score > wristConfidenceThreshold; // Use lower threshold
+
+      console.log(
+        `Readiness Check: LS=${lsReady}, RS=${rsReady}, LW=${lwReady}, RW=${rwReady}`
+      ); // Add log: individual checks
+
+      if (lsReady && rsReady && lwReady && rwReady) {
+        console.log("Pose detected! Starting countdown.");
+        clearInterval(this.poseCheckInterval); // Stop checking
+        this.poseCheckInterval = null;
+        this.ui.hideStandByMessage();
+        this.startCountdown();
+      } else {
+        console.log(
+          "Waiting for clearer pose detection (threshold not met or keypoints missing)."
+        ); // Updated log message
+      }
+    } else {
+      console.log(
+        "No pose data available yet or poseData.keypoints is missing."
+      ); // Updated log message
+    }
+  }
+
+  startCountdown() {
+    this.ui.showCountdown();
+    let count = 3;
+    this.ui.updateCountdown(count);
+
+    const countdownInterval = setInterval(() => {
+      count--;
+      if (count > 0) {
+        this.ui.updateCountdown(count);
+      } else {
+        clearInterval(countdownInterval);
+        this.ui.hideCountdown();
+        this.startGameLoop(); // Start the actual game
+      }
+    }, 1000);
   }
 
   handleResize() {
@@ -51,6 +191,7 @@ export class Game {
     this.canvas.height = window.innerHeight;
 
     // Initialize or update components that depend on canvas size
+    // Ensure player/obstacles are created *before* game loop starts
     if (!this.player) {
       this.player = new Player(this.canvas.width, 50);
     }
@@ -65,14 +206,14 @@ export class Game {
     this.player.handleResize(this.canvas.width);
     this.obstacleManager.handleResize(this.canvas.width, this.canvas.height);
 
-    // Redraw canvas immediately after resize if game is running
-    if (!this.gameOver && this.gameLoopId) {
+    // Redraw canvas immediately after resize only if game has actually started
+    if (this.gameStarted && !this.gameOver && this.gameLoopId) {
       this.draw();
     }
   }
 
   async gameLoop() {
-    if (this.gameOver) return;
+    if (this.gameOver || !this.gameStarted) return; // Don't run if game hasn't started or is over
 
     // 1. Get Input
     const turnDirection = await this.poseController.detectTurnDirection();
@@ -108,13 +249,15 @@ export class Game {
   }
 
   startGameLoop() {
-    if (!this.gameLoopId) {
+    if (!this.gameLoopId && !this.gameOver) {
       console.log("Starting game loop...");
+      this.gameStarted = true; // Set the flag
       this.gameOver = false;
       this.ui.hideGameOver();
-      // Reset state if needed (e.g., score, player position)
+      // Reset state if needed (ensure player/obstacles are ready)
       this.score = 0;
       this.distanceTraveled = 0;
+      // Re-initialize player and obstacles to ensure correct starting state
       this.player = new Player(this.canvas.width, 50);
       this.obstacleManager = new ObstacleManager(
         this.canvas.width,
@@ -128,10 +271,16 @@ export class Game {
   endGame() {
     console.log("Game Over!");
     this.gameOver = true;
+    this.gameStarted = false; // Reset flag
     this.ui.showGameOver();
     if (this.gameLoopId) {
       cancelAnimationFrame(this.gameLoopId);
       this.gameLoopId = null;
+    }
+    if (this.poseCheckInterval) {
+      // Clear pose check interval if game ends early
+      clearInterval(this.poseCheckInterval);
+      this.poseCheckInterval = null;
     }
     // Dispose pose controller resources when game ends
     if (this.poseController) {
