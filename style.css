@@ -74,6 +74,10 @@ body {
   text-align: center;
   font-family: sans-serif;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  min-height: 150px; /* Ensure a minimum height to prevent shrinking */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
 }
 
 .modal-content h2 {
@@ -90,4 +94,17 @@ body {
 #countdownText {
   font-size: 48px;
   font-weight: bold;
+  margin-bottom: 10px; /* Add space below countdown number */
+}
+
+#waitingMessage {
+  font-size: 18px;
+  color: grey;
+  /* No margin needed if countdownText has margin-bottom */
+  height: 1.2em; /* Reserve space roughly equal to one line of text */
+}
+
+/* New class for visibility toggle */
+.invisible {
+  visibility: hidden;
 }

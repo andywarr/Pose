@@ -3,24 +3,24 @@ export class UI {
     scoreElementId,
     gameOverElementId,
     instructionModalId,
-    standByMessageId,
     countdownElementId,
-    countdownTextId
+    countdownTextId,
+    waitingMessageId // Add new ID
   ) {
     this.scoreElement = document.getElementById(scoreElementId);
     this.gameOverElement = document.getElementById(gameOverElementId);
     this.instructionModal = document.getElementById(instructionModalId);
-    this.standByMessage = document.getElementById(standByMessageId);
     this.countdownElement = document.getElementById(countdownElementId);
     this.countdownText = document.getElementById(countdownTextId);
+    this.waitingMessage = document.getElementById(waitingMessageId); // Get the new element
 
     if (
       !this.scoreElement ||
       !this.gameOverElement ||
       !this.instructionModal ||
-      !this.standByMessage ||
       !this.countdownElement ||
-      !this.countdownText
+      !this.countdownText ||
+      !this.waitingMessage // Check for the new element
     ) {
       console.error("One or more UI elements not found!");
     }
@@ -56,21 +56,13 @@ export class UI {
     }
   }
 
-  showStandByMessage() {
-    if (this.standByMessage) {
-      this.standByMessage.classList.remove("hidden");
-    }
-  }
-
-  hideStandByMessage() {
-    if (this.standByMessage) {
-      this.standByMessage.classList.add("hidden");
-    }
-  }
-
   showCountdown() {
     if (this.countdownElement) {
       this.countdownElement.classList.remove("hidden");
+      // Ensure countdown text itself is also visible initially
+      if (this.countdownText) {
+        this.countdownText.classList.remove("hidden"); // Make number visible
+      }
     }
   }
 
@@ -83,6 +75,25 @@ export class UI {
   updateCountdown(value) {
     if (this.countdownText) {
       this.countdownText.textContent = value;
+    }
+  }
+
+  // Add methods for waiting message
+  showWaitingMessage() {
+    if (this.waitingMessage) {
+      console.log("Showing waiting message", this.waitingMessage); // Add log
+      this.waitingMessage.classList.remove("invisible");
+    } else {
+      console.error("Waiting message element not found!"); // Add error log
+    }
+  }
+
+  hideWaitingMessage() {
+    if (this.waitingMessage) {
+      console.log("Hiding waiting message", this.waitingMessage); // Add log
+      this.waitingMessage.classList.add("invisible");
+    } else {
+      console.error("Waiting message element not found!"); // Add error log
     }
   }
 }

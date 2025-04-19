@@ -11,9 +11,9 @@ export class Game {
     gameOverId,
     instructionModalId,
     confirmInstructionsButtonId,
-    standByMessageId,
     countdownElementId,
-    countdownTextId
+    countdownTextId,
+    waitingMessageId // Add new ID
   ) {
     this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext("2d");
@@ -23,9 +23,9 @@ export class Game {
       scoreId,
       gameOverId,
       instructionModalId,
-      standByMessageId,
       countdownElementId,
-      countdownTextId
+      countdownTextId,
+      waitingMessageId // Pass new ID to UI
     );
     this.confirmInstructionsButton = document.getElementById(
       confirmInstructionsButtonId
@@ -89,7 +89,9 @@ export class Game {
 
   startPreGameSequence() {
     this.ui.hideInstructions();
-    this.ui.showStandByMessage();
+    this.ui.showCountdown(); // Show the combined countdown/standby modal
+    this.ui.updateCountdown(3); // Set initial countdown number display
+    this.ui.showWaitingMessage(); // Show the waiting message
     // Start checking for pose readiness
     this.poseCheckInterval = setInterval(this.checkPoseReadiness, 500); // Check every 500ms
   }
@@ -116,7 +118,7 @@ export class Game {
         (k) => k.name === "right_wrist"
       );
       const shoulderConfidenceThreshold = 0.3; // Keep shoulder threshold
-      const wristConfidenceThreshold = 0.15; // Lower wrist threshold
+      const wristConfidenceThreshold = 0.1; // Lower wrist threshold further
 
       // Log individual keypoint statuses
       console.log(
@@ -155,7 +157,7 @@ export class Game {
         console.log("Pose detected! Starting countdown.");
         clearInterval(this.poseCheckInterval); // Stop checking
         this.poseCheckInterval = null;
-        this.ui.hideStandByMessage();
+        this.ui.hideWaitingMessage(); // Hide the waiting message
         this.startCountdown();
       } else {
         console.log(
@@ -170,9 +172,8 @@ export class Game {
   }
 
   startCountdown() {
-    this.ui.showCountdown();
     let count = 3;
-    this.ui.updateCountdown(count);
+    this.ui.updateCountdown(count); // Ensure the timed sequence starts visually at 3
 
     const countdownInterval = setInterval(() => {
       count--;
