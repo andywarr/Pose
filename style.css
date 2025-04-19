@@ -1,25 +1,54 @@
 body {
   margin: 0;
+  overflow: hidden; /* Prevent scrollbars */
+  background-color: #f0f8ff; /* Light blue background for snow */
 }
 
 #app {
   height: 100vh;
-  display: grid;
-  place-items: center;
-  position:relative;
+  width: 100vw; /* Use viewport width */
+  position: relative; /* Needed for absolute positioning of children */
+  display: block; /* Remove grid */
+}
+
+#gameCanvas {
+  display: block; /* Remove extra space below canvas */
   width: 100%;
-}
-
-.left {
-  background-color: red;
-}
-
-.right {
-  background-color: blue;
+  height: 100%;
 }
 
 #video {
   position: absolute;
   bottom: 10px;
   right: 10px;
+  border: 1px solid black; /* Make video visible */
+}
+
+#ui {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: black;
+  font-family: sans-serif;
+  font-size: 24px;
+  background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
+  padding: 10px;
+  border-radius: 5px;
+}
+
+#gameOver {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  color: red;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
 }

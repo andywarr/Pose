@@ -5,11 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="./style.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pose</title>
+    <title>Snowboard Pose Game</title>
   </head>
   <body>
     <div id="app">
-      <video id="video" style="-webkit-transform: scaleX(-1);"></video>
+      <canvas id="gameCanvas"></canvas>
+      <div id="ui">
+        <div id="score">Score: 0</div>
+        <div id="gameOver" class="hidden">Game Over!</div>
+      </div>
+      <video id="video" style="-webkit-transform: scaleX(-1)"></video>
     </div>
     <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
