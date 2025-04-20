@@ -106,8 +106,25 @@ body {
 
 /* Style for the specific instruction confirmation button */
 #confirmInstructions {
-  align-self: center; /* Center the button within the flex container */
-  /* Centering is handled by text-align: center on .modal-content */
+  align-self: center;
+  background-color: #1a1a1a;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 6px;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+#confirmInstructions:hover {
+  background-color: #333333; /* Slightly lighter on hover */
+}
+
+#confirmInstructions:focus {
+  outline: 2px solid #4a90e2; /* Focus ring */
+  outline-offset: 2px;
 }
 
 /* New class for visibility toggle */
