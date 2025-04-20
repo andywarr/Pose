@@ -24,16 +24,14 @@ body {
   border: 1px solid black; /* Make video visible */
 }
 
-#ui {
+#score {
   position: absolute;
   top: 10px;
   right: 10px; /* Added */
   color: black;
   font-family: sans-serif;
   font-size: 24px;
-  background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
   padding: 10px;
-  border-radius: 5px;
 }
 
 #gameOver {
@@ -41,12 +39,13 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 48px;
+  font-size: 72px; /* Increased from 48px */
+  font-weight: bold; /* Added bold */
   color: red;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 20px;
-  border-radius: 10px;
+  padding: 40px; /* Increased from 20px */
   text-align: center;
+  z-index: 50; /* Ensure it's above game elements */
+  min-width: 60%; /* Ensure it has a substantial width */
 }
 
 .hidden {
