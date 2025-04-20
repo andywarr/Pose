@@ -131,16 +131,6 @@ function updatePlayerPosition(turnDirection) {
     player.angle += player.turnSpeed;
   }
 
-  // --- DEBUG LOG ---
-  if (initialAngle !== player.angle) {
-    console.log(
-      `Player Angle Changed: ${initialAngle.toFixed(
-        2
-      )} -> ${player.angle.toFixed(2)}`
-    );
-  }
-  // --- END DEBUG LOG ---
-
   // Keep angle within -PI to PI
   if (player.angle > Math.PI) player.angle -= Math.PI * 2;
   if (player.angle < -Math.PI) player.angle += Math.PI * 2;
