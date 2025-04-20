@@ -10,6 +10,10 @@ export class Player {
     this.maxSpeed = 10;
     this.acceleration = 0.05;
     this.deceleration = 0.1;
+    // Colors for the snowboard and rider
+    this.boardColor = "#3498db"; // Blue
+    this.riderColor = "#f39c12"; // Orange
+    this.riderSize = 10; // Radius of the snowboarder
   }
 
   update(turnDirection) {
@@ -51,23 +55,78 @@ export class Player {
     // Calculate the angle of movement (actual travel direction)
     const movementAngle = Math.atan2(moveY, moveX) - Math.PI / 2;
 
-    // Draw the player body oriented in the direction of travel
+    // Draw the player oriented in the direction of travel
     ctx.save();
     ctx.rotate(movementAngle);
-    ctx.fillStyle = "red";
-    ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
 
-    // Draw front indicator at the actual front of the player (bottom of rectangle)
-    ctx.fillStyle = "black";
+    // Draw the snowboard (rounded rectangle)
+    this.drawSnowboard(ctx);
+
+    // Draw the snowboarder (circle)
+    this.drawRider(ctx);
+
+    ctx.restore();
+    ctx.restore();
+  }
+
+  drawSnowboard(ctx) {
+    const radius = this.height / 4; // Rounded corners radius
+
+    ctx.fillStyle = this.boardColor;
     ctx.beginPath();
-    ctx.moveTo(0, this.height / 2 + 5); // Point at the bottom (front)
-    ctx.lineTo(-5, this.height / 2); // Left corner at bottom edge
-    ctx.lineTo(5, this.height / 2); // Right corner at bottom edge
+
+    // Top-left corner
+    ctx.moveTo(-this.width / 2 + radius, -this.height / 2);
+    // Top-right corner
+    ctx.lineTo(this.width / 2 - radius, -this.height / 2);
+    ctx.arcTo(
+      this.width / 2,
+      -this.height / 2,
+      this.width / 2,
+      -this.height / 2 + radius,
+      radius
+    );
+
+    // Bottom-right corner
+    ctx.lineTo(this.width / 2, this.height / 2 - radius);
+    ctx.arcTo(
+      this.width / 2,
+      this.height / 2,
+      this.width / 2 - radius,
+      this.height / 2,
+      radius
+    );
+
+    // Bottom-left corner
+    ctx.lineTo(-this.width / 2 + radius, this.height / 2);
+    ctx.arcTo(
+      -this.width / 2,
+      this.height / 2,
+      -this.width / 2,
+      this.height / 2 - radius,
+      radius
+    );
+
+    // Top-left corner
+    ctx.lineTo(-this.width / 2, -this.height / 2 + radius);
+    ctx.arcTo(
+      -this.width / 2,
+      -this.height / 2,
+      -this.width / 2 + radius,
+      -this.height / 2,
+      radius
+    );
+
     ctx.closePath();
     ctx.fill();
-    ctx.restore();
+  }
 
-    ctx.restore();
+  drawRider(ctx) {
+    // Draw the snowboarder (circle) in the center of the board
+    ctx.fillStyle = this.riderColor;
+    ctx.beginPath();
+    ctx.arc(0, 0, this.riderSize, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   // Keep player within horizontal bounds on resize
