@@ -66,6 +66,8 @@ export class PoseController {
       const poses = await this.detector.estimatePoses(this.video, {
         flipHorizontal: false,
       });
+      // Add log to see if any poses are detected at all
+      console.log("Pose estimation result:", poses);
       this.lastPose = poses && poses.length > 0 ? poses[0] : null;
       return this.lastPose;
     } catch (error) {

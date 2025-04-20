@@ -118,7 +118,7 @@ export class Game {
         (k) => k.name === "right_wrist"
       );
       const shoulderConfidenceThreshold = 0.3; // Keep shoulder threshold
-      const wristConfidenceThreshold = 0.1; // Lower wrist threshold further
+      const wristConfidenceThreshold = 0.01; // Lower wrist threshold further
 
       // Log individual keypoint statuses
       console.log(
