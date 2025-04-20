@@ -104,6 +104,12 @@ body {
   height: 1.2em; /* Reserve space roughly equal to one line of text */
 }
 
+/* Style for the specific instruction confirmation button */
+#confirmInstructions {
+  align-self: center; /* Center the button within the flex container */
+  /* Centering is handled by text-align: center on .modal-content */
+}
+
 /* New class for visibility toggle */
 .invisible {
   visibility: hidden;
