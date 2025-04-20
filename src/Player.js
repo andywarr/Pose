@@ -45,17 +45,28 @@ export class Player {
   draw(ctx) {
     ctx.save();
     ctx.translate(this.x, this.y);
-    ctx.rotate(this.angle);
+
+    // Calculate the direction of travel based on movement
+    const { moveX, moveY } = this.getMovement();
+    // Calculate the angle of movement (actual travel direction)
+    const movementAngle = Math.atan2(moveY, moveX) - Math.PI / 2;
+
+    // Draw the player body oriented in the direction of travel
+    ctx.save();
+    ctx.rotate(movementAngle);
     ctx.fillStyle = "red";
     ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-    // Draw front indicator
+
+    // Draw front indicator at the actual front of the player (bottom of rectangle)
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.moveTo(0, -this.height / 2 - 5);
-    ctx.lineTo(-5, -this.height / 2);
-    ctx.lineTo(5, -this.height / 2);
+    ctx.moveTo(0, this.height / 2 + 5); // Point at the bottom (front)
+    ctx.lineTo(-5, this.height / 2); // Left corner at bottom edge
+    ctx.lineTo(5, this.height / 2); // Right corner at bottom edge
     ctx.closePath();
     ctx.fill();
+    ctx.restore();
+
     ctx.restore();
   }
 
