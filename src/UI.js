@@ -13,6 +13,7 @@ export class UI {
     this.countdownElement = document.getElementById(countdownElementId);
     this.countdownText = document.getElementById(countdownTextId);
     this.waitingMessage = document.getElementById(waitingMessageId); // Get the new element
+    this.restartButton = document.getElementById("restartButton");
 
     if (
       !this.scoreElement ||
@@ -94,6 +95,14 @@ export class UI {
       this.waitingMessage.classList.add("invisible");
     } else {
       console.error("Waiting message element not found!"); // Add error log
+    }
+  }
+
+  setupRestartButton(restartCallback) {
+    if (this.restartButton) {
+      this.restartButton.addEventListener("click", restartCallback);
+    } else {
+      console.error("Restart button not found!");
     }
   }
 }

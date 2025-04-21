@@ -47,6 +47,7 @@ export class Game {
     this.startPreGameSequence = this.startPreGameSequence.bind(this);
     this.checkPoseReadiness = this.checkPoseReadiness.bind(this);
     this.startCountdown = this.startCountdown.bind(this);
+    this.restart = this.restart.bind(this);
   }
 
   async initialize() {
@@ -63,6 +64,9 @@ export class Game {
       this.startPreGameSequence,
       { once: true } // Remove listener after first click
     );
+
+    // Add listener for restart button
+    this.ui.setupRestartButton(this.restart);
 
     // Initialize Pose Controller (but don't start game loop yet)
     const videoWidth = window.innerWidth / 5;
@@ -117,7 +121,7 @@ export class Game {
       const rightWrist = poseData.keypoints.find(
         (k) => k.name === "right_wrist"
       );
-      const shoulderConfidenceThreshold = 0.3; // Keep shoulder threshold
+      const shoulderConfidenceThreshold = 0.05; // Keep shoulder threshold
       const wristConfidenceThreshold = 0.01; // Lower wrist threshold further
 
       // Log individual keypoint statuses
@@ -287,6 +291,42 @@ export class Game {
     if (this.poseController) {
       this.poseController.dispose();
     }
-    // Consider adding a restart button/mechanism here
+  }
+
+  restart() {
+    console.log("Restarting game...");
+
+    // Reset game state
+    this.score = 0;
+    this.distanceTraveled = 0;
+    this.gameOver = false;
+    this.gameStarted = false;
+    this.ui.updateScore(0);
+
+    // Hide game over screen
+    this.ui.hideGameOver();
+
+    // Re-initialize pose controller
+    const videoWidth = window.innerWidth / 5;
+    const videoHeight = window.innerHeight / 5;
+    this.poseController = new PoseController(
+      this.videoElementId,
+      videoWidth,
+      videoHeight
+    );
+
+    // Reinitialize the game
+    this.poseController
+      .initialize()
+      .then(() => {
+        console.log("Pose controller reinitialized");
+        this.startPreGameSequence();
+      })
+      .catch((error) => {
+        console.error("Failed to reinitialize pose controller:", error);
+        alert(
+          "Failed to reinitialize camera or pose detection. Please refresh the page."
+        );
+      });
   }
 }
